@@ -427,7 +427,6 @@ function Index() {
           <span className="brand-badge-mascot">
             {state === "meeting" ? (
               <video
-                src="/media/deft3r-header-wink.mp4"
                 poster={headerMascot.url}
                 aria-label="Göz kırpan DEFT3R maskotu"
                 className="brand-badge-mascot-video"
@@ -436,7 +435,10 @@ function Index() {
                 muted
                 playsInline
                 preload="auto"
-              />
+              >
+                <source src="/media/deft3r-header-wink.webm" type="video/webm" />
+                <source src="/media/deft3r-header-wink.mp4" type="video/mp4" />
+              </video>
             ) : (
               <span className="mascot-look block h-full w-full">
                 <img src={mascot} alt="" width={1024} height={1024} className="block h-full w-full object-contain" />
