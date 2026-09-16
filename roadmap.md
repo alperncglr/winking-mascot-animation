@@ -1,0 +1,21 @@
+# Roadmap
+
+- [x] Logo renkli maskot görsellerini ve videolarını projeye yerel dosya olarak ekle.
+- [x] Eski renkli maskot dosyalarını özgün adlarıyla ayrı klasöre ekle.
+- [x] Yerel çalıştırmayı doğrula.
+- [x] `yeni-proje` adlı özel GitHub deposunu oluştur ve kaynakları yükle.
+- [x] Tüm dosyaları (medya dahil) `deft3r-notebook` deposuna eksiksiz yükle.
+- [x] Saydamsız video (`deft3r-open-and-continuous-writing.mp4`) depoda.
+- [x] Logoyu PNG olarak rozetsiz maskot kapağına işledim; GitHub reposu güncellendi.
+- [x] DEFT3R yazısını modern geometrik tipe geçir ve 3 rakamının taban hizasını düzelt.
+- [x] İkinci yazı tipi seçeneğini kullanırken mevcut altın dış hat görünümünü koru.
+- [x] Bitiş ekranı: yere oturmuş, gözleri kapalı uyuyan maskot görseli + zzz animasyonu.
+- [x] Özet/transkript sonrası alt kutuları kaldır.
+- [x] Merhaba baloncugunu yenile ve maskotla birlikte getir.
+- [x] Uyuyan maskot: hafif geriye yaslanmis, kalemine dayanan poz denemesi.
+- [x] Uyuyan maskot mevcut maskot gorselinden turetilmeli (ayni defter + logosuz T3 AI markasi).
+- [x] Tum guncellemeleri GitHub deposuna (alperncglr/deft3r-notebook) eksiksiz pushla.
+- [x] Karsilama maskotu: gozlerini kirpistiran ve saga-sola bakan loop animasyonu.
+- [x] Toplanti bitince ara kapanis sahnesini kaldir (dogrudan ozet ekrani).
+- [x] Maskotun düşüş penceresiyle (78%→96%) aynı easing'te tek parça sahne yükselişi kur.
+- [x] Sahne kayma hızını maskotun düşüş hızıyla eşleştir ve Playwright ile doğrula.

@@ -1,0 +1,11 @@
+{
+  "source": "https://github.com/alperncglr/deft3r-notebook",
+  "capabilities": [
+    {"capability":"application code","source":"public GitHub repository","outcome":"preserve","status":"implemented","next_action":"verify preview"},
+    {"capability":"schema and records","source":"inspection","outcome":"not applicable","status":"verified","next_action":"none"},
+    {"capability":"authentication and authorization","source":"inspection","outcome":"not applicable","status":"verified","next_action":"none"},
+    {"capability":"uploaded media","source":"repository and user upload","outcome":"preserve and replace requested header mascot","status":"in_progress","next_action":"generate and integrate blinking video"},
+    {"capability":"external providers and secrets","source":"inspection","outcome":"not applicable","status":"verified","next_action":"none"},
+    {"capability":"verification","source":"local preview","outcome":"preserve","status":"pending","next_action":"test meeting header and video playback"}
+  ]
+}
