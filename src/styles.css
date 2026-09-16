@@ -738,7 +738,7 @@
 }
 .app-header.brand-hero .brand-badge { left: calc(50% - 8.5rem); width: 17rem; justify-content: center; }
 .brand-badge-mascot { position: relative; order: 3; width: 2.75rem; height: 2.75rem; flex: none; transition: width .7s cubic-bezier(.22, 1, .36, 1), height .7s cubic-bezier(.22, 1, .36, 1), opacity .5s, margin .7s cubic-bezier(.22, 1, .36, 1); }
-.brand-badge-mascot-video { display: block; width: 100%; height: 100%; object-fit: contain; mix-blend-mode: screen; }
+.brand-badge-mascot-video { display: block; width: 100%; height: 100%; object-fit: contain; }
 .app-header.brand-hero .brand-badge-mascot { order: 3; width: 0; height: 2.75rem; opacity: 0; margin-right: -.75rem; }
 .brand-badge-teb { order: 1; height: 2.1rem; flex: none; transition: height .7s cubic-bezier(.22, 1, .36, 1); }
 .app-header.brand-hero .brand-badge-teb { order: 1; height: 3.75rem; }

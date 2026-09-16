@@ -11,7 +11,6 @@ import sittingLegLeftLower from "@/assets/deft3r-mascot-sitting-leg-left-lower.p
 import sittingLegRightUpper from "@/assets/deft3r-mascot-sitting-leg-right-upper.png";
 import sittingLegRightLower from "@/assets/deft3r-mascot-sitting-leg-right-lower.png";
 import headerMascot from "@/assets/deft3r-meeting-header-mascot.png.asset.json";
-import headerWinkVideo from "@/assets/deft3r-header-wink.mp4.asset.json";
 
 const mascot = "/media/deft3r-notebook-mascot.png";
 const sleepingMascot = "/media/deft3r-mascot-sleeping.png";
@@ -428,7 +427,7 @@ function Index() {
           <span className="brand-badge-mascot">
             {state === "meeting" ? (
               <video
-                src={headerWinkVideo.url}
+                src="/media/deft3r-header-wink.mp4"
                 poster={headerMascot.url}
                 aria-label="Göz kırpan DEFT3R maskotu"
                 className="brand-badge-mascot-video"
