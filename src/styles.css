@@ -738,6 +738,7 @@
 }
 .app-header.brand-hero .brand-badge { left: calc(50% - 8.5rem); width: 17rem; justify-content: center; }
 .brand-badge-mascot { position: relative; order: 3; width: 2.75rem; height: 2.75rem; flex: none; transition: width .7s cubic-bezier(.22, 1, .36, 1), height .7s cubic-bezier(.22, 1, .36, 1), opacity .5s, margin .7s cubic-bezier(.22, 1, .36, 1); }
+.brand-badge-mascot-video { display: block; width: 100%; height: 100%; object-fit: contain; mix-blend-mode: screen; }
 .app-header.brand-hero .brand-badge-mascot { order: 3; width: 0; height: 2.75rem; opacity: 0; margin-right: -.75rem; }
 .brand-badge-teb { order: 1; height: 2.1rem; flex: none; transition: height .7s cubic-bezier(.22, 1, .36, 1); }
 .app-header.brand-hero .brand-badge-teb { order: 1; height: 3.75rem; }
@@ -769,6 +770,8 @@
 @media (prefers-reduced-motion: reduce) {
   .brand-wordmark, .mascot-enter, .mascot-bob, .mascot-look, .mascot-blink, .mascot-wave, .mascot-wave-tilt, .meeting-stage, .listening-dot, .bubble-in, .meeting-mascot-closed, .meeting-mascot-open, .writing-pen, .summary-stage, .sleepy-mascot-img, .sleepy-z, .typewriter-cursor, .timer-seconds-tick { animation: none; }
   .mascot-blink { opacity: 0; }
+  .brand-badge-mascot-video { display: none; }
+  .brand-badge-mascot:has(.brand-badge-mascot-video) { background: center / contain no-repeat url("/__l5e/assets-v1/8c37a343-84b2-49b3-98a2-f0cf3f6e9f14/deft3r-meeting-header-mascot.png"); }
   .sleepy-mascot-img { transform: none; }
   .sleepy-z { opacity: .8; }
   .app-header, .brand-badge, .brand-badge-mascot, .brand-badge-teb, .brand-badge-word, .brand-badge-tag { transition: none; }
