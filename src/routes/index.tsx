@@ -78,8 +78,19 @@ const conversation = [
   { name: "Ayşe", initials: "AY", tone: "coral", time: "00:34", text: "O zaman bu haftanın ana hedefi kullanıcı testleri olsun." },
 ];
 
+const meetingLanguages = [
+  { code: "auto", label: "Otomatik", flag: "✨" },
+  { code: "tr", label: "Türkçe", flag: "🇹🇷" },
+  { code: "en", label: "English", flag: "🇬🇧" },
+  { code: "ar", label: "العربية", flag: "🇸🇦" },
+  { code: "uk", label: "Українська", flag: "🇺🇦" },
+] as const;
+
+type MeetingLanguage = (typeof meetingLanguages)[number]["code"];
+
 function Index() {
   const [state, setState] = useState<AppState>("ready");
+  const [language, setLanguage] = useState<MeetingLanguage>("auto");
   const [title, setTitle] = useState("");
   const [seconds, setSeconds] = useState(0);
   const [visibleMessages, setVisibleMessages] = useState(0);
@@ -507,6 +518,23 @@ function Index() {
             <div className="ready-meeting-card notebook-inset mt-6 w-full">
               <label htmlFor="meeting-title" className="sr-only">Toplantı adı</label>
               <textarea id="meeting-title" value={title} onChange={(event) => setTitle(event.target.value)} rows={2} placeholder="Toplantı adı" className="notebook-inset-field w-full resize-none px-4 py-3 text-sm outline-none placeholder:text-muted-foreground" />
+              <div className="lang-picker mt-2" role="group" aria-label="Toplantı dili">
+                <span className="lang-picker-label">Toplantı dili</span>
+                <div className="lang-picker-options">
+                  {meetingLanguages.map((option) => (
+                    <button
+                      key={option.code}
+                      type="button"
+                      className={cn("lang-chip", language === option.code && "lang-chip-active")}
+                      aria-pressed={language === option.code}
+                      onClick={() => setLanguage(option.code)}
+                      lang={option.code === "auto" ? undefined : option.code}
+                    >
+                      <span aria-hidden="true">{option.flag}</span> {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <Button className="notebook-inset-action mt-2 w-full" onClick={startMeeting}><Play className="size-4 fill-current" /> Toplantıyı Başlat</Button>
             </div>
             {notice && <p className="mt-3 text-sm font-medium text-destructive">{notice}</p>}
@@ -517,6 +545,10 @@ function Index() {
           <div className="meeting-stage flex min-h-0 flex-1 flex-col">
             <div className="mx-auto mb-4 text-center">
               <h1 className="mt-1 font-display text-2xl font-bold sm:text-3xl">{title.trim() || "İsimsiz toplantı"}</h1>
+              <p className="mt-1 text-xs font-medium text-muted-foreground">
+                Dil: {meetingLanguages.find((option) => option.code === language)?.label}
+                {language === "auto" && " (algılanıyor)"}
+              </p>
             </div>
             <div className="transcript-scroll mx-auto flex w-full max-w-3xl flex-1 flex-col justify-end overflow-y-hidden px-1 pb-5">
               <div className="space-y-3">
