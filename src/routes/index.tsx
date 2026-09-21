@@ -78,8 +78,19 @@ const conversation = [
   { name: "Ayşe", initials: "AY", tone: "coral", time: "00:34", text: "O zaman bu haftanın ana hedefi kullanıcı testleri olsun." },
 ];
 
+const meetingLanguages = [
+  { code: "auto", label: "Otomatik", flag: "✨" },
+  { code: "tr", label: "Türkçe", flag: "🇹🇷" },
+  { code: "en", label: "English", flag: "🇬🇧" },
+  { code: "ar", label: "العربية", flag: "🇸🇦" },
+  { code: "uk", label: "Українська", flag: "🇺🇦" },
+] as const;
+
+type MeetingLanguage = (typeof meetingLanguages)[number]["code"];
+
 function Index() {
   const [state, setState] = useState<AppState>("ready");
+  const [language, setLanguage] = useState<MeetingLanguage>("auto");
   const [title, setTitle] = useState("");
   const [seconds, setSeconds] = useState(0);
   const [visibleMessages, setVisibleMessages] = useState(0);
