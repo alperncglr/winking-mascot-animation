@@ -545,6 +545,10 @@ function Index() {
           <div className="meeting-stage flex min-h-0 flex-1 flex-col">
             <div className="mx-auto mb-4 text-center">
               <h1 className="mt-1 font-display text-2xl font-bold sm:text-3xl">{title.trim() || "İsimsiz toplantı"}</h1>
+              <p className="mt-1 text-xs font-medium text-muted-foreground">
+                Dil: {meetingLanguages.find((option) => option.code === language)?.label}
+                {language === "auto" && " (algılanıyor)"}
+              </p>
             </div>
             <div className="transcript-scroll mx-auto flex w-full max-w-3xl flex-1 flex-col justify-end overflow-y-hidden px-1 pb-5">
               <div className="space-y-3">
