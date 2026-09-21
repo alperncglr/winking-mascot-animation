@@ -507,6 +507,23 @@ function Index() {
             <div className="ready-meeting-card notebook-inset mt-6 w-full">
               <label htmlFor="meeting-title" className="sr-only">Toplantı adı</label>
               <textarea id="meeting-title" value={title} onChange={(event) => setTitle(event.target.value)} rows={2} placeholder="Toplantı adı" className="notebook-inset-field w-full resize-none px-4 py-3 text-sm outline-none placeholder:text-muted-foreground" />
+              <div className="lang-picker mt-2" role="group" aria-label="Toplantı dili">
+                <span className="lang-picker-label">Toplantı dili</span>
+                <div className="lang-picker-options">
+                  {meetingLanguages.map((option) => (
+                    <button
+                      key={option.code}
+                      type="button"
+                      className={cn("lang-chip", language === option.code && "lang-chip-active")}
+                      aria-pressed={language === option.code}
+                      onClick={() => setLanguage(option.code)}
+                      lang={option.code === "auto" ? undefined : option.code}
+                    >
+                      <span aria-hidden="true">{option.flag}</span> {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <Button className="notebook-inset-action mt-2 w-full" onClick={startMeeting}><Play className="size-4 fill-current" /> Toplantıyı Başlat</Button>
             </div>
             {notice && <p className="mt-3 text-sm font-medium text-destructive">{notice}</p>}
