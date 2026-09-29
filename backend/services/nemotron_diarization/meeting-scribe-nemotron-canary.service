@@ -1,0 +1,25 @@
+[Unit]
+Description=Meeting Scribe Nemotron 3 diarization canary
+After=network.target
+
+[Service]
+Type=simple
+User=bt
+Group=bt
+WorkingDirectory=/home/bt/meeting-scribe
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONPATH=/home/bt/vendor/transformers-f324/src:/home/bt/vendor/nemotron-deps
+Environment=HF_HUB_OFFLINE=1
+Environment=TRANSFORMERS_OFFLINE=1
+Environment=TOKENIZERS_PARALLELISM=false
+Environment=NEMOTRON_MODEL_PATH=/home/bt/models/Nemotron-3-Diarization
+Environment=NEMOTRON_STREAMING_MODE=low_latency
+Environment=NEMOTRON_DEVICE=cuda
+Environment=NEMOTRON_DTYPE=float16
+Environment=NEMOTRON_THRESHOLD=0.5
+ExecStart=/home/bt/meeting-scribe/.venv/bin/python services/nemotron_diarization/nemotron_server.py --host 127.0.0.1 --port 2712
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

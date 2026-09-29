@@ -1,5 +1,10 @@
 # Defter Interface Studio
 
+Bu depo T3AI DEFT3R sisteminin kaynak kodunu içerir: web arayüzü depo kökünde,
+FastAPI uygulaması, ses servisleri, yapılandırma örnekleri ve Python testleri
+[`backend/`](backend/) altındadır. Model ağırlıkları, toplantı kayıtları,
+çalışma veritabanı, gizli `.env` dosyaları ve dağıtım arşivleri Git'e dahil değildir.
+
 https://github.com/alperncglr/deft3r-notebook/settings
 
 Şu projeyi çeksene tamamen bunun arayüzünde değişiklikler yapacağız, bir de githubda direkt olarak  bu projeye bağla sistemi
