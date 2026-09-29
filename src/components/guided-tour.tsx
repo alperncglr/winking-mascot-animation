@@ -8,6 +8,7 @@ type Props = {
   offset: number; // global index of first step
   total: number;
   onFinish: () => void;
+  onStepChange?: (index: number) => void;
 };
 
 type Box = { top: number; left: number; width: number; height: number };
@@ -15,10 +16,11 @@ type Box = { top: number; left: number; width: number; height: number };
 const CARD_W = 280;
 const GAP = 16;
 
-export function GuidedTour({ steps, offset, total, onFinish }: Props) {
+export function GuidedTour({ steps, offset, total, onFinish, onStepChange }: Props) {
   const [index, setIndex] = useState(0);
   const [box, setBox] = useState<Box | null>(null);
   const step = steps[index];
+  useEffect(() => { onStepChange?.(index); }, [index, onStepChange]);
 
   useLayoutEffect(() => {
     if (!step) return;
@@ -83,7 +85,7 @@ export function GuidedTour({ steps, offset, total, onFinish }: Props) {
             {index === 0 ? "Geç" : "Önceki"}
           </button>
           <button type="button" className="tour-btn tour-btn-next" onClick={() => (isLast ? onFinish() : setIndex(index + 1))}>
-            {isLast ? "Anladım" : "Sonraki"}
+            {isLast ? "Bitti" : "Sonraki"}
           </button>
         </div>
       </div>

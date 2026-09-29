@@ -34,7 +34,7 @@ const readyTourSteps: TourStep[] = [
   { target: "meeting-title", text: "Toplantına buradan bir ad ver. Bu ad toplantı ekranında ve özetinde başlık olarak görünür." },
   { target: "meeting-language", text: "Toplantıda konuşulacak dili seç. Emin değilsen otomatik seçenek dili kendisi algılar." },
 ];
-const meetingTourSteps: TourStep[] = [
+const tourSteps: TourStep[] = [...readyTourSteps,
   { target: "meeting-status", text: "Bağlantı ve mikrofon durumunu buradan takip edebilirsin. \"Bağlantı kurulu\" yazıyorsa sesin sunucuya ulaşıyor." },
   { target: "meeting-controls", text: "Kaydı Durdur ile kaydı geçici olarak duraklatabilir, Bitir ile toplantıyı sonlandırıp özete geçebilirsin." },
   { target: "meeting-transcript", text: "Konuşmalar burada anlık olarak yazıya dökülür. Her konuşmacı ayrı renkte görünür." },
@@ -159,16 +159,9 @@ function Index() {
   const [isDark, setIsDark] = useState(false);
   const [introVisible, setIntroVisible] = useState(true);
   const [signedIn, setSignedIn] = useState(false);
-  const [tourDone, setTourDone] = useState({ ready: true, meeting: true });
-  useEffect(() => {
-    try {
-      setTourDone({ ready: localStorage.getItem("deft3r-tour-ready") === "1", meeting: localStorage.getItem("deft3r-tour-meeting") === "1" });
-    } catch { setTourDone({ ready: false, meeting: false }); }
-  }, []);
-  const finishTour = (part: "ready" | "meeting") => {
-    setTourDone((d) => ({ ...d, [part]: true }));
-    try { localStorage.setItem(`deft3r-tour-${part}`, "1"); } catch { /* ignore */ }
-  };
+  const [tourOpen, setTourOpen] = useState(false);
+  const tourStepChange = useCallback((i: number) => setState(i >= 2 ? "meeting" : "ready"), []);
+  const finishTour = useCallback(() => { setTourOpen(false); setState("ready"); }, []);
   const [loginUser, setLoginUser] = useState("");
   const [loginPass, setLoginPass] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -990,7 +983,8 @@ function Index() {
                 {loginError && <p className="mt-2 text-sm font-medium text-destructive">{loginError}</p>}
               </form>
             ) : (
-            <div className="ready-meeting-card notebook-inset mt-6 w-full">
+            <div className="ready-meeting-card notebook-inset relative mt-6 w-full">
+              <button type="button" className="tour-info-btn" aria-label="Tanıtımı göster" title="Nasıl kullanılır?" onClick={() => setTourOpen(true)}><Info className="size-4" /></button>
               <label htmlFor="meeting-title" className="sr-only">Toplantı adı</label>
               <textarea data-tour="meeting-title" id="meeting-title" value={title} onChange={(event) => setTitle(event.target.value)} rows={2} placeholder="Toplantı adı" className="notebook-inset-field w-full resize-none px-4 pb-1 pt-5 text-sm outline-none placeholder:text-muted-foreground" />
               <div data-tour="meeting-language" className={cn("language-picker mt-2", languageOpen && "is-open")}>
@@ -1117,12 +1111,7 @@ function Index() {
           </div>
         )}
       </section>
-      {state === "ready" && signedIn && !introVisible && !tourDone.ready && (
-        <GuidedTour steps={readyTourSteps} offset={0} total={5} onFinish={() => finishTour("ready")} />
-      )}
-      {state === "meeting" && !tourDone.meeting && (
-        <GuidedTour steps={meetingTourSteps} offset={2} total={5} onFinish={() => finishTour("meeting")} />
-      )}
+      {tourOpen && <GuidedTour steps={tourSteps} offset={0} total={5} onFinish={finishTour} onStepChange={tourStepChange} />}
       {introVisible && (
         <div className={cn("opening-screen", introReady && "is-ready", introStarted && "is-started")}>
           <div className="opening-brand-lockup" style={introPlacement ?? undefined} aria-hidden="true">
