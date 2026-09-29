@@ -28,6 +28,17 @@ import sittingLegLeftUpper from "@/assets/deft3r-mascot-sitting-leg-left-upper.p
 import sittingLegLeftLower from "@/assets/deft3r-mascot-sitting-leg-left-lower.png";
 import sittingLegRightUpper from "@/assets/deft3r-mascot-sitting-leg-right-upper.png";
 import sittingLegRightLower from "@/assets/deft3r-mascot-sitting-leg-right-lower.png";
+import { GuidedTour, type TourStep } from "@/components/guided-tour";
+
+const readyTourSteps: TourStep[] = [
+  { target: "meeting-title", text: "Toplantına buradan bir ad ver. Bu ad toplantı ekranında ve özetinde başlık olarak görünür." },
+  { target: "meeting-language", text: "Toplantıda konuşulacak dili seç. Emin değilsen otomatik seçenek dili kendisi algılar." },
+];
+const meetingTourSteps: TourStep[] = [
+  { target: "meeting-status", text: "Bağlantı ve mikrofon durumunu buradan takip edebilirsin. \"Bağlantı kurulu\" yazıyorsa sesin sunucuya ulaşıyor." },
+  { target: "meeting-controls", text: "Kaydı Durdur ile kaydı geçici olarak duraklatabilir, Bitir ile toplantıyı sonlandırıp özete geçebilirsin." },
+  { target: "meeting-transcript", text: "Konuşmalar burada anlık olarak yazıya dökülür. Her konuşmacı ayrı renkte görünür." },
+];
 
 const mascot = "/media/deft3r-notebook-mascot.png";
 const sleepingMascot = "/media/deft3r-mascot-sleeping.png";
@@ -148,6 +159,16 @@ function Index() {
   const [isDark, setIsDark] = useState(false);
   const [introVisible, setIntroVisible] = useState(true);
   const [signedIn, setSignedIn] = useState(false);
+  const [tourDone, setTourDone] = useState({ ready: true, meeting: true });
+  useEffect(() => {
+    try {
+      setTourDone({ ready: localStorage.getItem("deft3r-tour-ready") === "1", meeting: localStorage.getItem("deft3r-tour-meeting") === "1" });
+    } catch { setTourDone({ ready: false, meeting: false }); }
+  }, []);
+  const finishTour = (part: "ready" | "meeting") => {
+    setTourDone((d) => ({ ...d, [part]: true }));
+    try { localStorage.setItem(`deft3r-tour-${part}`, "1"); } catch { /* ignore */ }
+  };
   const [loginUser, setLoginUser] = useState("");
   const [loginPass, setLoginPass] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -889,7 +910,7 @@ function Index() {
         </button>
         {state === "meeting" && (
           <div className="flex items-center gap-3">
-            <span className="hidden items-center gap-2 text-sm font-semibold sm:flex">
+            <span data-tour="meeting-controls-anchor" className="hidden items-center gap-2 text-sm font-semibold sm:flex">
               <i className={cn("listening-dot", (isPaused || audioStatus.microphone !== "listening" || audioStatus.connection !== "connected") && "listening-dot-paused")} /> {isPaused ? "Duraklatıldı" : audioStatus.connection !== "connected" ? "Bağlantı yok" : audioStatus.microphone === "listening" ? "Mikrofon dinliyor" : "Ses akışı bekleniyor"}
             </span>
             <time className="font-mono text-sm font-semibold tabular-nums">
@@ -969,8 +990,8 @@ function Index() {
             ) : (
             <div className="ready-meeting-card notebook-inset mt-6 w-full">
               <label htmlFor="meeting-title" className="sr-only">Toplantı adı</label>
-              <textarea id="meeting-title" value={title} onChange={(event) => setTitle(event.target.value)} rows={2} placeholder="Toplantı adı" className="notebook-inset-field w-full resize-none px-4 pb-1 pt-5 text-sm outline-none placeholder:text-muted-foreground" />
-              <div className={cn("language-picker mt-2", languageOpen && "is-open")}>
+              <textarea data-tour="meeting-title" id="meeting-title" value={title} onChange={(event) => setTitle(event.target.value)} rows={2} placeholder="Toplantı adı" className="notebook-inset-field w-full resize-none px-4 pb-1 pt-5 text-sm outline-none placeholder:text-muted-foreground" />
+              <div data-tour="meeting-language" className={cn("language-picker mt-2", languageOpen && "is-open")}>
                 <Button
                   type="button"
                   variant="ghost"
