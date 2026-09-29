@@ -1194,3 +1194,11 @@
 .tour-btn-next { background: var(--foreground); color: var(--background); }
 @keyframes tour-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .tour-card { animation: none; } .tour-spotlight { transition: none; } }
+.tour-info-btn {
+  position: absolute; top: .55rem; right: .6rem; z-index: 2;
+  display: grid; place-items: center; width: 1.75rem; height: 1.75rem;
+  border-radius: 999px; color: var(--muted-foreground);
+  background: color-mix(in oklab, var(--card) 80%, transparent);
+  cursor: pointer; transition: color .15s ease, background-color .15s ease;
+}
+.tour-info-btn:hover { color: var(--foreground); background: var(--card); }

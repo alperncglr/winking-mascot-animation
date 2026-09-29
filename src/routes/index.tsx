@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, ChevronDown, CircleStop, Download, FileText, Loader2, Moon, Pause, Play, RotateCcw, Sparkles, Sun } from "lucide-react";
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type Ref } from "react";
+import { Check, ChevronDown, CircleStop, Download, FileText, Info, Loader2, Moon, Pause, Play, RotateCcw, Sparkles, Sun } from "lucide-react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type Ref } from "react";
 
 import { ChromaKeyVideo } from "@/components/chroma-key-video";
 import { Button } from "@/components/ui/button";
