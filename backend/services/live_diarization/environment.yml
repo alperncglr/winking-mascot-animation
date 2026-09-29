@@ -1,0 +1,13 @@
+name: meeting-scribe-diart
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - ffmpeg<4.4
+  - portaudio=19.6
+  - libsndfile>=1.2.2
+  - pip
+  - pip:
+      - diart==0.9.2
+      - pyannote.audio<3.1
+      - websockets>=15,<18

@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>T3AI DEFTER</title>
+  <style>
+    body { margin: 0; font-family: Segoe UI, Arial, sans-serif; background: #f6f7f9; color: #17202a; }
+    main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    h1 { font-size: 28px; margin: 0 0 18px; }
+    h2 { font-size: 18px; margin: 0 0 10px; }
+    section { background: #fff; border: 1px solid #dde2e8; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    label { display: block; font-size: 13px; font-weight: 600; margin: 10px 0 4px; }
+    input, textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #cbd3dc; border-radius: 6px; padding: 9px; font: inherit; }
+    textarea { min-height: 84px; }
+    button { border: 0; border-radius: 6px; background: #1f6feb; color: white; padding: 9px 12px; font-weight: 600; cursor: pointer; margin: 8px 8px 0 0; }
+    button.secondary { background: #57606a; }
+    button.danger { background: #b42318; }
+    pre { white-space: pre-wrap; background: #101828; color: #e6edf3; padding: 12px; border-radius: 6px; overflow: auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .muted { color: #667085; font-size: 13px; }
+    #liveOutput { display: flex; flex-direction: column; gap: 10px; min-height: 120px; padding: 12px; background: #f8fafc; border-radius: 8px; }
+    #liveOutput .message { width: fit-content; max-width: 78%; padding: 10px 12px; border: 1px solid #d0d5dd; border-left: 4px solid var(--speaker-color); border-radius: 12px; background: #fff; box-shadow: 0 1px 2px rgba(16, 24, 40, .06); }
+    #liveOutput .message.side-right { align-self: flex-end; }
+    #liveOutput .message.provisional { opacity: .58; }
+    #liveOutput .message.final { opacity: 1; }
+    #liveOutput .speaker { color: var(--speaker-color); font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+    #liveOutput .message-text { color: #17202a; line-height: 1.45; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>T3AI DEFTER</h1>
+  <div class="grid">
+    <section>
+      <h2>Toplanti</h2>
+      <label>Baslik</label>
+      <input id="title" placeholder="Bos birakilirsa otomatik">
+      <label>Dil</label>
+      <select id='language' disabled>
+        <option value='mixed'>Otomatik / Cok dilli</option>
+      </select>
+      <label>API anahtarı</label>
+      <input id='apiKey' type='password' placeholder='A4000 sunucu erişim anahtarı'>
+      <button onclick="createMeeting()">Olustur</button>
+      <button class="secondary" onclick="refresh()">Yenile</button>
+    </section>
+    <section>
+      <h2>Akis</h2>
+      <label>Meeting ID</label>
+      <input id="meetingId" type="number">
+      <button onclick="startRecording()">Kaydi Baslat</button>
+      <button onclick="createSilent()">Sessiz Test Kaydi</button>
+      <button onclick="stopRecording()">Kaydi Bitir</button>
+      <button onclick="runOffline()">Offline Calistir</button>
+      <button onclick="summarize()">Ozet Al</button>
+      <button class="danger" onclick="finish()">Toplantiyi Bitir</button>
+    </section>
+  </div>
+  <section>
+    <h2>Canli Yayin</h2>
+    <button id="liveStartBtn" onclick="startLive()">Canli Yayini Baslat</button>
+    <button class="secondary" onclick="stopLive()">Canli Yayini Durdur</button>
+    <p class='muted'>Her konuşmacı toplantı boyunca sabit bir Kullanıcı N etiketi ve renkle gösterilir. Soluk balonlar geçici, belirgin balonlar kesinleşmiş canlı metindir.</p>
+    <div id="liveOutput"></div>
+  </section>
+  <section>
+    <h2>Durum</h2>
+    <pre id="output">Hazir.</pre>
+  </section>
+</main>
+<script>
+const out = document.getElementById('output');
+const apiKeyInput = document.getElementById('apiKey');
+apiKeyInput.value = sessionStorage.getItem('meetingScribeApiKey') || '';
+apiKeyInput.addEventListener('change', () => {
+  sessionStorage.setItem('meetingScribeApiKey', apiKeyInput.value);
+});
+function show(value) { out.textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2); }
+async function api(path, options = {}) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-API-Key': apiKeyInput.value,
+    ...(options.headers || {}),
+  };
+  const response = await fetch(path, { ...options, headers });
+  const body = await response.json();
+  if (!response.ok) { show(body); throw body; }
+  show(body);
+  return body;
+}
+async function requestWebSocketToken() {
+  const response = await fetch('/auth/websocket-token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': apiKeyInput.value,
+    },
+  });
+  const body = await response.json();
+  if (!response.ok) { show(body); throw body; }
+  return body.token;
+}
+function currentId() { return document.getElementById("meetingId").value; }
+async function createMeeting() {
+  const body = {
+    title: document.getElementById("title").value || null,
+    language: 'mixed',
+  };
+  const result = await api("/meetings", { method: "POST", body: JSON.stringify(body) });
+  document.getElementById("meetingId").value = result.meeting_id;
+}
+async function refresh() { await api(currentId() ? `/meetings/${currentId()}` : "/meetings"); }
+async function startRecording() { await api(`/meetings/${currentId()}/recording/start`, { method: "POST" }); }
+async function createSilent() { await api(`/meetings/${currentId()}/recording/create-silent`, { method: "POST", body: JSON.stringify({ seconds: 3 }) }); }
+async function stopRecording() {
+  stopLive();
+  show('Ses akisi kapatiliyor; son parcanin kaydedilmesi bekleniyor.');
+  await waitUntilRecorded();
+  await api(`/meetings/${currentId()}/recording/stop`, { method: 'POST' });
+}
+async function waitUntilRecorded(timeoutMs = 25000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const response = await fetch(`/meetings/${currentId()}`, {
+      headers: { 'X-API-Key': apiKeyInput.value },
+    });
+    const body = await response.json();
+    if (!response.ok) { show(body); throw body; }
+    if (body.status === 'recorded') return;
+    if (body.status !== 'recording') {
+      show(body);
+      throw new Error(`Beklenmeyen toplanti durumu: ${body.status}`);
+    }
+    await new Promise(resolve => setTimeout(resolve, 250));
+  }
+  throw new Error('Ses akisinin kapanmasi zaman asimina ugradi.');
+}
+async function runOffline() { await api(`/meetings/${currentId()}/offline/run`, { method: "POST" }); }
+async function summarize() { await api(`/meetings/${currentId()}/summary`, { method: "POST" }); }
+async function finish() { await api(`/meetings/${currentId()}/finish`, { method: "POST" }); }
+
+let liveSocket = null;
+let liveAudioContext = null;
+let liveMicStream = null;
+let liveScriptNode = null;
+const liveSegments = {};
+const speakerColors = ['#175cd3', '#b42318', '#067647', '#7a5af8', '#b54708', '#c11574'];
+
+function downsampleTo16k(input, inputRate) {
+  const outputRate = 16000;
+  if (inputRate === outputRate) return input;
+  if (inputRate < outputRate) throw new Error('Mikrofon örnekleme hızı 16 kHz altına düşemez.');
+  const ratio = inputRate / outputRate;
+  const output = new Float32Array(Math.floor(input.length / ratio));
+  for (let outIndex = 0; outIndex < output.length; outIndex++) {
+    const start = Math.floor(outIndex * ratio);
+    const end = Math.max(start + 1, Math.floor((outIndex + 1) * ratio));
+    let sum = 0;
+    for (let inIndex = start; inIndex < end && inIndex < input.length; inIndex++) {
+      sum += input[inIndex];
+    }
+    output[outIndex] = sum / (end - start);
+  }
+  return output;
+}
+
+function renderLive() {
+  const host = document.getElementById('liveOutput');
+  host.innerHTML = '';
+  Object.values(liveSegments).forEach(seg => {
+    const numberMatch = String(seg.speaker_label).match(/\d+/);
+    const speakerNumber = numberMatch ? Number(numberMatch[0]) : 1;
+    const bubble = document.createElement('div');
+    const state = seg.status === 'final' ? 'final' : 'provisional';
+    const side = speakerNumber % 2 === 0 ? 'side-right' : '';
+    bubble.className = `message ${state} ${side}`;
+    bubble.style.setProperty(
+      '--speaker-color',
+      speakerColors[(speakerNumber - 1) % speakerColors.length]
+    );
+
+    const speaker = document.createElement('div');
+    speaker.className = 'speaker';
+    speaker.textContent = seg.overlap
+      ? seg.speaker_label + ' [üst üste konuşma]'
+      : seg.speaker_label;
+    const messageText = document.createElement('div');
+    messageText.className = 'message-text';
+    messageText.textContent = seg.text;
+    bubble.appendChild(speaker);
+    bubble.appendChild(messageText);
+    host.appendChild(bubble);
+  });
+  host.scrollTop = host.scrollHeight;
+}
+
+async function startLive() {
+  const id = currentId();
+  if (!id) { alert("Once bir Meeting ID gir"); return; }
+  if (liveSocket) { show('Canli yayin zaten acik.'); return; }
+  Object.keys(liveSegments).forEach(key => delete liveSegments[key]);
+  renderLive();
+  let websocketToken;
+  try {
+    websocketToken = await requestWebSocketToken();
+  } catch (_error) {
+    return;
+  }
+  const protocol = location.protocol === "https:" ? "wss" : "ws";
+  const auth = encodeURIComponent(websocketToken);
+  liveSocket = new WebSocket(`${protocol}://${location.host}/meetings/${id}/live/ws?ws_token=${auth}`);
+
+  liveSocket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    liveSegments[data.segment_id] = data;
+    renderLive();
+  };
+  liveSocket.onerror = () => show("Canli baglanti hatasi.");
+  liveSocket.onclose = () => { liveSocket = null; };
+
+  liveSocket.onopen = async () => {
+    try {
+      if (!window.isSecureContext && location.hostname !== 'localhost') {
+        throw new Error('Mikrofon erişimi için arayüz HTTPS üzerinden açılmalıdır.');
+      }
+      liveMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      liveAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (error) {
+      show(`Mikrofon baslatilamadi: ${error.message || error}`);
+      if (liveSocket) liveSocket.close();
+      return;
+    }
+    const source = liveAudioContext.createMediaStreamSource(liveMicStream);
+    liveScriptNode = liveAudioContext.createScriptProcessor(4096, 1, 1);
+    source.connect(liveScriptNode);
+    liveScriptNode.connect(liveAudioContext.destination);
+    liveScriptNode.onaudioprocess = (e) => {
+      const input = downsampleTo16k(
+        e.inputBuffer.getChannelData(0), liveAudioContext.sampleRate
+      );
+      const pcm16 = new Int16Array(input.length);
+      for (let i = 0; i < input.length; i++) {
+        const clamped = Math.max(-1, Math.min(1, input[i]));
+        pcm16[i] = clamped < 0 ? clamped * 0x8000 : clamped * 0x7fff;
+      }
+      if (
+        liveSocket &&
+        liveSocket.readyState === WebSocket.OPEN &&
+        liveSocket.bufferedAmount < 1024 * 1024
+      ) {
+        liveSocket.send(pcm16.buffer);
+      } else if (liveSocket && liveSocket.bufferedAmount >= 1024 * 1024) {
+        show('Ağ ses akışına yetişemiyor; bağlantıyı kontrol edin.');
+      }
+    };
+  };
+}
+
+function stopLive() {
+  if (liveScriptNode) { liveScriptNode.disconnect(); liveScriptNode = null; }
+  if (liveAudioContext) { liveAudioContext.close(); liveAudioContext = null; }
+  if (liveMicStream) { liveMicStream.getTracks().forEach(track => track.stop()); liveMicStream = null; }
+  if (liveSocket) { liveSocket.close(); liveSocket = null; }
+}
+</script>
+</body>
+</html>

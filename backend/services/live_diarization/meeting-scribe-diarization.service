@@ -1,0 +1,26 @@
+[Unit]
+Description=Meeting Scribe live diarization WebSocket service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=bt
+Group=bt
+WorkingDirectory=/home/bt/meeting-scribe
+Environment=HOME=/home/bt
+Environment=HF_HUB_OFFLINE=1
+Environment=PYANNOTE_METRICS_ENABLED=0
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/bt/meeting-scribe/.venv-diart/bin/python /home/bt/meeting-scribe/services/live_diarization/diart_server.py --host 127.0.0.1 --port 2710 --model-root /home/bt/meeting-scribe/models/pyannote-speaker-diarization-community-1
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGINT
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
