@@ -910,7 +910,7 @@ function Index() {
         </button>
         {state === "meeting" && (
           <div className="flex items-center gap-3">
-            <span data-tour="meeting-controls-anchor" className="hidden items-center gap-2 text-sm font-semibold sm:flex">
+            <span className="hidden items-center gap-2 text-sm font-semibold sm:flex">
               <i className={cn("listening-dot", (isPaused || audioStatus.microphone !== "listening" || audioStatus.connection !== "connected") && "listening-dot-paused")} /> {isPaused ? "Duraklatıldı" : audioStatus.connection !== "connected" ? "Bağlantı yok" : audioStatus.microphone === "listening" ? "Mikrofon dinliyor" : "Ses akışı bekleniyor"}
             </span>
             <time className="font-mono text-sm font-semibold tabular-nums">
@@ -919,10 +919,12 @@ function Index() {
                 <span key={secondsLabel} className="timer-seconds-tick">{secondsLabel}</span>
               </span>
             </time>
+            <span data-tour="meeting-controls" className="flex items-center gap-3">
             <Button variant="quiet" size="sm" className="meeting-toolbar-btn rounded-full ring-1 ring-border" onClick={() => void togglePause()}>
               {isPaused ? (<><Play className="size-4 fill-current" /> Devam Et</>) : (<><Pause className="size-4" /> Kaydı Durdur</>)}
             </Button>
             <Button variant="danger" size="sm" className="meeting-toolbar-btn meeting-toolbar-btn-danger rounded-full" onClick={endMeeting}><CircleStop className="size-4" /> Bitir</Button>
+            </span>
           </div>
         )}
         <button
@@ -940,7 +942,7 @@ function Index() {
         </button>
       </header>
 
-      {state === "meeting" && <div role="status" className="relative z-10 mx-auto mb-3 flex w-full max-w-5xl flex-wrap gap-x-5 gap-y-1 px-5 text-xs text-muted-foreground sm:px-8">
+      {state === "meeting" && <div data-tour="meeting-status" role="status" className="relative z-10 mx-auto mb-3 flex w-full max-w-5xl flex-wrap gap-x-5 gap-y-1 px-5 text-xs text-muted-foreground sm:px-8">
         <span>Toplantı #{meetingId}</span>
         <span>{audioStatus.connection === "connected" ? "● Bağlantı kurulu" : audioStatus.connection === "connecting" ? "○ Bağlanıyor" : "○ Bağlantı kapalı"}</span>
         <span>{isPaused ? "Mikrofon duraklatıldı" : audioStatus.microphone === "listening" ? "Mikrofon dinliyor" : audioStatus.microphone === "muted" ? "Mikrofon sessize alındı" : audioStatus.microphone === "stalled" ? "Mikrofon akışı durdu" : audioStatus.microphone === "starting" ? "Mikrofon açılıyor" : "Mikrofon kapalı"}</span>
@@ -1039,7 +1041,7 @@ function Index() {
             <div className="mx-auto mb-4 text-center">
               <h1 className="mt-1 font-display text-2xl font-bold sm:text-3xl">{title.trim() || "İsimsiz toplantı"}</h1>
             </div>
-            <div ref={transcriptScrollRef} className="transcript-scroll mx-auto flex w-full max-w-3xl flex-1 flex-col overflow-y-auto px-1 pb-5">
+            <div data-tour="meeting-transcript" ref={transcriptScrollRef} className="transcript-scroll mx-auto flex w-full max-w-3xl flex-1 flex-col overflow-y-auto px-1 pb-5">
               <div className="mt-auto space-y-3">
                 {liveSegments.map((segment) => {
                   const { tone, initials, number } = speakerVisual(segment.speaker_label);
@@ -1115,6 +1117,12 @@ function Index() {
           </div>
         )}
       </section>
+      {state === "ready" && signedIn && !introVisible && !tourDone.ready && (
+        <GuidedTour steps={readyTourSteps} offset={0} total={5} onFinish={() => finishTour("ready")} />
+      )}
+      {state === "meeting" && !tourDone.meeting && (
+        <GuidedTour steps={meetingTourSteps} offset={2} total={5} onFinish={() => finishTour("meeting")} />
+      )}
       {introVisible && (
         <div className={cn("opening-screen", introReady && "is-ready", introStarted && "is-started")}>
           <div className="opening-brand-lockup" style={introPlacement ?? undefined} aria-hidden="true">
