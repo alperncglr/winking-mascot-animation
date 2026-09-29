@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, ChevronDown, CircleStop, Download, FileText, Loader2, Moon, Pause, Play, RotateCcw, Sparkles, Sun } from "lucide-react";
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type Ref } from "react";
+import { Check, ChevronDown, CircleStop, Download, FileText, Info, Loader2, Moon, Pause, Play, RotateCcw, Sparkles, Sun } from "lucide-react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type Ref } from "react";
 
 import { ChromaKeyVideo } from "@/components/chroma-key-video";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,17 @@ import sittingLegLeftUpper from "@/assets/deft3r-mascot-sitting-leg-left-upper.p
 import sittingLegLeftLower from "@/assets/deft3r-mascot-sitting-leg-left-lower.png";
 import sittingLegRightUpper from "@/assets/deft3r-mascot-sitting-leg-right-upper.png";
 import sittingLegRightLower from "@/assets/deft3r-mascot-sitting-leg-right-lower.png";
+import { GuidedTour, type TourStep } from "@/components/guided-tour";
+
+const readyTourSteps: TourStep[] = [
+  { target: "meeting-title", text: "Toplantına buradan bir ad ver. Bu ad toplantı ekranında ve özetinde başlık olarak görünür." },
+  { target: "meeting-language", text: "Toplantıda konuşulacak dili seç. Emin değilsen otomatik seçenek dili kendisi algılar." },
+];
+const tourSteps: TourStep[] = [...readyTourSteps,
+  { target: "meeting-status", text: "Bağlantı ve mikrofon durumunu buradan takip edebilirsin. \"Bağlantı kurulu\" yazıyorsa sesin sunucuya ulaşıyor." },
+  { target: "meeting-controls", text: "Kaydı Durdur ile kaydı geçici olarak duraklatabilir, Bitir ile toplantıyı sonlandırıp özete geçebilirsin." },
+  { target: "meeting-transcript", text: "Konuşmalar burada anlık olarak yazıya dökülür. Her konuşmacı ayrı renkte görünür." },
+];
 
 const mascot = "/media/deft3r-notebook-mascot.png";
 const sleepingMascot = "/media/deft3r-mascot-sleeping.png";
@@ -148,6 +159,9 @@ function Index() {
   const [isDark, setIsDark] = useState(false);
   const [introVisible, setIntroVisible] = useState(true);
   const [signedIn, setSignedIn] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
+  const tourStepChange = useCallback((i: number) => setState(i >= 2 ? "meeting" : "ready"), []);
+  const finishTour = useCallback(() => { setTourOpen(false); setState("ready"); }, []);
   const [loginUser, setLoginUser] = useState("");
   const [loginPass, setLoginPass] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -898,10 +912,12 @@ function Index() {
                 <span key={secondsLabel} className="timer-seconds-tick">{secondsLabel}</span>
               </span>
             </time>
+            <span data-tour="meeting-controls" className="flex items-center gap-3">
             <Button variant="quiet" size="sm" className="meeting-toolbar-btn rounded-full ring-1 ring-border" onClick={() => void togglePause()}>
               {isPaused ? (<><Play className="size-4 fill-current" /> Devam Et</>) : (<><Pause className="size-4" /> Kaydı Durdur</>)}
             </Button>
             <Button variant="danger" size="sm" className="meeting-toolbar-btn meeting-toolbar-btn-danger rounded-full" onClick={endMeeting}><CircleStop className="size-4" /> Bitir</Button>
+            </span>
           </div>
         )}
         <button
@@ -919,7 +935,7 @@ function Index() {
         </button>
       </header>
 
-      {state === "meeting" && <div role="status" className="relative z-10 mx-auto mb-3 flex w-full max-w-5xl flex-wrap gap-x-5 gap-y-1 px-5 text-xs text-muted-foreground sm:px-8">
+      {state === "meeting" && <div data-tour="meeting-status" role="status" className="relative z-10 mx-auto mb-3 flex w-full max-w-5xl flex-wrap gap-x-5 gap-y-1 px-5 text-xs text-muted-foreground sm:px-8">
         <span>Toplantı #{meetingId}</span>
         <span>{audioStatus.connection === "connected" ? "● Bağlantı kurulu" : audioStatus.connection === "connecting" ? "○ Bağlanıyor" : "○ Bağlantı kapalı"}</span>
         <span>{isPaused ? "Mikrofon duraklatıldı" : audioStatus.microphone === "listening" ? "Mikrofon dinliyor" : audioStatus.microphone === "muted" ? "Mikrofon sessize alındı" : audioStatus.microphone === "stalled" ? "Mikrofon akışı durdu" : audioStatus.microphone === "starting" ? "Mikrofon açılıyor" : "Mikrofon kapalı"}</span>
@@ -967,10 +983,11 @@ function Index() {
                 {loginError && <p className="mt-2 text-sm font-medium text-destructive">{loginError}</p>}
               </form>
             ) : (
-            <div className="ready-meeting-card notebook-inset mt-6 w-full">
+            <div className="ready-meeting-card notebook-inset relative mt-6 w-full">
+              <button type="button" className="tour-info-btn" aria-label="Tanıtımı göster" title="Nasıl kullanılır?" onClick={() => setTourOpen(true)}><Info className="size-4" /></button>
               <label htmlFor="meeting-title" className="sr-only">Toplantı adı</label>
-              <textarea id="meeting-title" value={title} onChange={(event) => setTitle(event.target.value)} rows={2} placeholder="Toplantı adı" className="notebook-inset-field w-full resize-none px-4 pb-1 pt-5 text-sm outline-none placeholder:text-muted-foreground" />
-              <div className={cn("language-picker mt-2", languageOpen && "is-open")}>
+              <textarea data-tour="meeting-title" id="meeting-title" value={title} onChange={(event) => setTitle(event.target.value)} rows={2} placeholder="Toplantı adı" className="notebook-inset-field w-full resize-none px-4 pb-1 pt-5 text-sm outline-none placeholder:text-muted-foreground" />
+              <div data-tour="meeting-language" className={cn("language-picker mt-2", languageOpen && "is-open")}>
                 <Button
                   type="button"
                   variant="ghost"
@@ -1018,7 +1035,7 @@ function Index() {
             <div className="mx-auto mb-4 text-center">
               <h1 className="mt-1 font-display text-2xl font-bold sm:text-3xl">{title.trim() || "İsimsiz toplantı"}</h1>
             </div>
-            <div ref={transcriptScrollRef} className="transcript-scroll mx-auto flex w-full max-w-3xl flex-1 flex-col overflow-y-auto px-1 pb-5">
+            <div data-tour="meeting-transcript" ref={transcriptScrollRef} className="transcript-scroll mx-auto flex w-full max-w-3xl flex-1 flex-col overflow-y-auto px-1 pb-5">
               <div className="mt-auto space-y-3">
                 {liveSegments.map((segment) => {
                   const { tone, initials, number } = speakerVisual(segment.speaker_label);
@@ -1094,6 +1111,7 @@ function Index() {
           </div>
         )}
       </section>
+      {tourOpen && <GuidedTour steps={tourSteps} offset={0} total={5} onFinish={finishTour} onStepChange={tourStepChange} />}
       {introVisible && (
         <div className={cn("opening-screen", introReady && "is-ready", introStarted && "is-started")}>
           <div className="opening-brand-lockup" style={introPlacement ?? undefined} aria-hidden="true">

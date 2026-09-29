@@ -19,3 +19,4 @@
 - [x] Toplanti bitince ara kapanis sahnesini kaldir (dogrudan ozet ekrani).
 - [x] Maskotun düşüş penceresiyle (78%→96%) aynı easing'te tek parça sahne yükselişi kur.
 - [x] Sahne kayma hızını maskotun düşüş hızıyla eşleştir ve Playwright ile doğrula.
+- [ ] Tanıtım: toplantı başlat kartında "i" butonu, 5 adımı gösterir, Bitti ile başlat ekranına döner.
