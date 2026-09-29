@@ -147,6 +147,10 @@ function Index() {
   const [isPaused, setIsPaused] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [introVisible, setIntroVisible] = useState(true);
+  const [signedIn, setSignedIn] = useState(false);
+  const [loginUser, setLoginUser] = useState("");
+  const [loginPass, setLoginPass] = useState("");
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [introReady, setIntroReady] = useState(false);
   const [introStarted, setIntroStarted] = useState(false);
   const [introPlacement, setIntroPlacement] = useState<IntroPlacement | null>(null);
@@ -940,8 +944,29 @@ function Index() {
                 </span>
               </span>
             </div>
-            <h1 className="ready-heading mt-1 font-display text-3xl font-bold sm:text-4xl">Bugünkü toplantı ne hakkında?</h1>
+            <h1 className="ready-heading mt-1 font-display text-3xl font-bold sm:text-4xl">{signedIn ? "Bugünkü toplantı ne hakkında?" : "Deftere giriş yap"}</h1>
             <div className="ready-paper-weight paper-weight" aria-hidden="true" />
+            {!signedIn ? (
+              <form
+                className="ready-meeting-card notebook-inset mt-6 w-full"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (!loginUser.trim() || !loginPass) {
+                    setLoginError("Kullanıcı adı ve şifre gerekli.");
+                    return;
+                  }
+                  setLoginError(null);
+                  setSignedIn(true);
+                }}
+              >
+                <label htmlFor="login-user" className="sr-only">Kullanıcı adı</label>
+                <input id="login-user" autoComplete="username" value={loginUser} onChange={(e) => setLoginUser(e.target.value)} placeholder="Kullanıcı adı" className="notebook-inset-field w-full px-4 py-3 text-sm outline-none placeholder:text-muted-foreground" />
+                <label htmlFor="login-pass" className="sr-only">Şifre</label>
+                <input id="login-pass" type="password" autoComplete="current-password" value={loginPass} onChange={(e) => setLoginPass(e.target.value)} placeholder="Şifre" className="notebook-inset-field mt-2 w-full px-4 py-3 text-sm outline-none placeholder:text-muted-foreground" />
+                <Button type="submit" className="notebook-inset-action mt-2 w-full">Giriş Yap</Button>
+                {loginError && <p className="mt-2 text-sm font-medium text-destructive">{loginError}</p>}
+              </form>
+            ) : (
             <div className="ready-meeting-card notebook-inset mt-6 w-full">
               <label htmlFor="meeting-title" className="sr-only">Toplantı adı</label>
               <textarea id="meeting-title" value={title} onChange={(event) => setTitle(event.target.value)} rows={2} placeholder="Toplantı adı" className="notebook-inset-field w-full resize-none px-4 pb-1 pt-5 text-sm outline-none placeholder:text-muted-foreground" />
@@ -983,6 +1008,7 @@ function Index() {
               </div>
               <Button className="notebook-inset-action mt-2 w-full" onClick={startMeeting} disabled={isStartingMeeting}><Play className="size-4 fill-current" /> {isStartingMeeting ? "Toplantı başlatılıyor…" : "Toplantıyı Başlat"}</Button>
             </div>
+            )}
             {notice && <p className="mt-3 text-sm font-medium text-destructive">{notice}</p>}
           </div>
         )}
